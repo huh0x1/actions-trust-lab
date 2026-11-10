@@ -7,4 +7,3 @@ jobs:
   call_external:
     uses: huh0x1/reusable-trust-lab/.github/workflows/called.yml@main
     secrets: inherit
-    environment: synthetic-review
