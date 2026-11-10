@@ -1,0 +1,30 @@
+name: cache-isolation-lab
+on: [workflow_dispatch, pull_request]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  cache:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: restore
+        uses: actions/cache/restore@v4
+        with:
+          path: cache-data
+          key: kimi-shared-cache-v1
+      - name: Seed trusted cache only from maintainer dispatch
+        if: github.event_name == 'workflow_dispatch' && steps.restore.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p cache-data
+          printf 'KIMI_TRUSTED_CACHE_V1\n' > cache-data/value.txt
+      - name: Display cache value
+        run: cat cache-data/value.txt
+      - name: Attempt synthetic cache mutation from fork
+        if: github.event_name == 'pull_request'
+        run: printf 'KIMI_FORK_CACHE_MUTATION\n' > cache-data/value.txt
+      - name: Save cache
+        uses: actions/cache/save@v4
+        with:
+          path: cache-data
+          key: kimi-shared-cache-v1
