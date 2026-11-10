@@ -6,6 +6,7 @@ permissions:
 jobs:
   claims:
     runs-on: ubuntu-latest
+    environment: synthetic-review
     steps:
       - name: Print selected synthetic OIDC claims only
         run: |
