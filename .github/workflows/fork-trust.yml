@@ -12,6 +12,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
       - name: Run synthetic fork fixture
         env:
           KIMI_SYNTHETIC_SECRET: ${{ secrets.KIMI_SYNTHETIC_SECRET }}
