@@ -17,5 +17,5 @@ jobs:
           name: synthetic-artifact
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ github.token }}
-          path: .
+          path: artifact-input
       - run: python3 trusted.py
