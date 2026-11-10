@@ -8,11 +8,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Print selected synthetic OIDC claims only
-        env:
-          REQUEST_URL: ${{ env.ACTIONS_ID_TOKEN_REQUEST_URL }}
-          REQUEST_TOKEN: ${{ env.ACTIONS_ID_TOKEN_REQUEST_TOKEN }}
         run: |
-          TOKEN_JSON=$(curl -sS -H "Authorization: bearer $REQUEST_TOKEN" "$REQUEST_URL&audience=kimi-synthetic-audience")
+          TOKEN_JSON=$(curl -sS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=kimi-synthetic-audience")
           ID_TOKEN=$(python3 -c 'import json,sys; print(json.load(sys.stdin)["value"])' <<< "$TOKEN_JSON")
           export ID_TOKEN
           python3 - <<'PY'
