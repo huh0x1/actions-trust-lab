@@ -1,0 +1,26 @@
+name: oidc-claims-lab
+on: [pull_request]
+permissions:
+  contents: read
+  id-token: write
+jobs:
+  claims:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print selected synthetic OIDC claims only
+        env:
+          REQUEST_URL: ${{ actions.id_token_request_url }}
+          REQUEST_TOKEN: ${{ actions.id_token_request_token }}
+        run: |
+          TOKEN_JSON=$(curl -sS -H "Authorization: bearer $REQUEST_TOKEN" "$REQUEST_URL&audience=kimi-synthetic-audience")
+          ID_TOKEN=$(python3 -c 'import json,sys; print(json.load(sys.stdin)["value"])' <<< "$TOKEN_JSON")
+          export ID_TOKEN
+          python3 - <<'PY'
+          import os,json,base64
+          token=os.environ['ID_TOKEN']
+          payload=token.split('.')[1]
+          payload += '='*(-len(payload)%4)
+          data=json.loads(base64.urlsafe_b64decode(payload))
+          keys=['aud','actor','repository','repository_owner','ref','event_name','job_workflow_ref','workflow_ref','environment','head_ref','base_ref']
+          print(json.dumps({k:data.get(k) for k in keys},sort_keys=True))
+          PY
