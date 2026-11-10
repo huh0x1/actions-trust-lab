@@ -1,0 +1,30 @@
+name: token-permissions-lab
+on: [pull_request]
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+  actions: write
+  id-token: write
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Attempt synthetic issue comment with fork token
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cat > request.json <<'JSON'
+          {"body":"KIMI_FORK_TOKEN_WRITE_CANARY"}
+          JSON
+          STATUS=$(curl -sS -o response.json -w '%{http_code}' \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2022-11-28' \
+            -H 'Content-Type: application/json' \
+            --data @request.json \
+            https://api.github.com/repos/test-kimi/actions-trust-lab/issues/4/comments)
+          echo "REQUEST POST /repos/test-kimi/actions-trust-lab/issues/4/comments Authorization=<redacted> body={\"body\":\"KIMI_FORK_TOKEN_WRITE_CANARY\"}"
+          echo "RESPONSE_STATUS=$STATUS"
+          cat response.json
+          if [ "$STATUS" != '403' ]; then exit 1; fi
