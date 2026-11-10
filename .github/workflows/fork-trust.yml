@@ -8,6 +8,7 @@ jobs:
   synthetic:
     if: github.event.label.name == 'run-safe-lab' || contains(github.event.pull_request.labels.*.name, 'run-safe-lab')
     runs-on: ubuntu-latest
+    environment: synthetic-review
     steps:
       - name: Clone and run synthetic fork fixture
         env:
