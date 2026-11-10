@@ -9,11 +9,13 @@ jobs:
     if: github.event.label.name == 'run-safe-lab' || contains(github.event.pull_request.labels.*.name, 'run-safe-lab')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
-      - name: Run synthetic fork fixture
+      - name: Clone and run synthetic fork fixture
         env:
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           KIMI_SYNTHETIC_SECRET: ${{ secrets.KIMI_SYNTHETIC_SECRET }}
-        run: python3 lab.py
+        run: |
+          git clone --no-checkout "https://github.com/${HEAD_REPO}.git" fork-src
+          cd fork-src
+          git checkout "$HEAD_SHA"
+          python3 lab.py
